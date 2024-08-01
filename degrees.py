@@ -1,45 +1,9 @@
 import csv
 import sys
 
+from util import QueueFrontier, Node
 from typing import Set
 from typing import Self
-class Node:
-    def __init__(self, parent : Self, action : str, state : str):
-        self.parent : Self = parent
-        self.action : str = action
-        self.state : str = state
-
-class QueueFrontier:
-    def __init__(self, initial_node : Node = None):
-        self.queue : list[Node] = []
-        if initial_node != None:
-            self.add([initial_node])
-    def is_empty(self) -> bool:
-        return len(self.queue) == 0
-    def add(self, nodes : list[Node])->None:
-        if len(nodes) == 0:
-            return
-        for node in nodes:
-            self.queue.append(node)
-    def remove(self) -> Node:
-        if self.is_empty():
-            raise IndexError("trying to remove a node from an empty frontier".title())
-        node : Node = self.queue[0]
-        self.queue = self.queue[1:]
-        return node
-    def contains(self, state : str) ->bool:
-        queue_of_removed_nodes : QueueFrontier = QueueFrontier()
-        found_state : bool = False
-        while not(self.is_empty()) and not(found_state):
-            node : Node = self.remove()
-            queue_of_removed_nodes.add([node])
-            if node.state == state:
-                found_state = True
-        while not(queue_of_removed_nodes.is_empty()):
-            node = queue_of_removed_nodes.remove()
-            self.add([node])
-        return found_state
-
 class Test:
     @staticmethod
     def node_test_code()->None:
@@ -260,26 +224,6 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    #List Of Things to create
-    #/   - Node
-    #/       - parent : Node
-    #/       - action : str
-    #/       - state : str
-    #/   - QueueFrontier
-    #/       - constructor(initial_node = None : Node)
-    #/       - is_empty() -> bool
-    #/       - add(nodes : list[Node]) -> None
-    #/       - remove() -> Node
-    #/       - contains(state : str)->bool
-    #   - Solver
-    #/       - target
-    #/       - expand(node : Node) -> list[Node]
-    #/           - neighbors_for_person(state : str) #already made
-    #/           - get_neighbouring_states(input_state : str) -> list[tuple[str]] #To remove duplicates
-    #/           - node
-    #/       - remove_found_nodes(nodes : list[Node], frontier : QueueFrontier, explored_states : list[str]) -> list[Node]
-    #/       - is_a_goal(nodes : list[Node], target : str) -> bool, Node
-    #/       - generate_solution(goal_node) -> list[tuple[str]]
     node : Node = None
     neighbouring_nodes : list[Node] = None
     new_nodes : list[Node] = None
@@ -294,11 +238,11 @@ def shortest_path(source, target):
            return None
         node = frontier.remove()
         explored_states.add(node.state)
-        neighbouring_nodes = Solver.expand(node)             #needs to use , node
+        neighbouring_nodes = Solver.expand(node)
         new_nodes = Solver.remove_found_nodes(neighbouring_nodes, frontier, explored_states)
         there_is_a_goal, goal_node = Solver.is_a_goal(new_nodes, target)
         if there_is_a_goal:
-            return Solver.generate_solution(goal_node)      #uses parents of goal node
+            return Solver.generate_solution(goal_node)      
         frontier.add(new_nodes)
 
 def person_id_for_name(name):
